@@ -55,6 +55,22 @@ export function ImageUploader({ onImageSelect }) {
         if (file) processFile(file);
     };
 
+    const handleClickPaste = async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            for (const item of clipboardItems) {
+                const imageTypes = item.types.filter(type => type.startsWith('image/'));
+                for (const type of imageTypes) {
+                    const blob = await item.getType(type);
+                    processFile(blob);
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error('Failed to read clipboard contents: ', err);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,9 +93,9 @@ export function ImageUploader({ onImageSelect }) {
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                     </div>
 
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
-                            Paste an image to begin
+                    <div className="space-y-2 cursor-pointer" onClick={handleClickPaste}>
+                        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 hover:text-black transition-colors">
+                            Click to paste Copied Image
                         </h2>
                         <p className="text-gray-500 flex items-center justify-center gap-2">
                             <Command className="w-4 h-4" /> + V / Ctrl + V

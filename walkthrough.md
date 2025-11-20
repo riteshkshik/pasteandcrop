@@ -4,6 +4,7 @@ A simple, fast, and beautiful tool to paste, crop, and copy images.
 
 ## Features
 - **Paste to Start**: Just press `Cmd+V` (or `Ctrl+V`) anywhere on the page to load an image.
+- **Click to Paste**: Click the "Click to paste Copied Image" text to paste directly from clipboard (useful for mobile).
 - **Drag & Drop**: Drag an image file onto the upload area.
 - **Upload**: Click the button to select a file manually.
 - **Crop**: Drag the handles to resize the crop box. Move the box to position it.
@@ -11,6 +12,7 @@ A simple, fast, and beautiful tool to paste, crop, and copy images.
 - **Shortcuts**:
     - Paste: `Cmd+V` (macOS) / `Ctrl+V` (Windows)
     - Copy: `Cmd+C` (macOS) / `Ctrl+C` (Windows)
+- **Mobile Fallback**: If automatic copying fails (common on mobile), a modal appears allowing you to long-press and save/copy the image manually.
 - **Privacy**: All processing happens locally in your browser. No images are uploaded to any server.
 
 ## How to Run

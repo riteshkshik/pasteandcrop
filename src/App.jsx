@@ -2,11 +2,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageUploader } from "./components/ImageUploader";
 import { ImageCropper } from "./components/ImageCropper";
+import { ResultModal } from "./components/ResultModal";
 import { CheckCircle2 } from "lucide-react";
 
 function App() {
   const [imageSrc, setImageSrc] = useState(null);
   const [toast, setToast] = useState(null);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [croppedImageSrc, setCroppedImageSrc] = useState(null);
 
   const handleImageSelect = (src) => {
     setImageSrc(src);
@@ -26,7 +29,9 @@ function App() {
       showToast("Cropped image copied to clipboard 🎉");
     } catch (error) {
       console.error("Failed to copy:", error);
-      showToast("Failed to copy image 😢");
+      // Fallback: Show modal
+      setCroppedImageSrc(croppedImageBlobUrl);
+      setResultModalOpen(true);
     }
   };
 
@@ -37,6 +42,7 @@ function App() {
 
   const handleClear = () => {
     setImageSrc(null);
+    setCroppedImageSrc(null);
   };
 
   return (
@@ -66,6 +72,12 @@ function App() {
           <p>Press Cmd+V / Ctrl+V to paste anywhere</p>
         </footer>
       </div>
+
+      <ResultModal
+        isOpen={resultModalOpen}
+        onClose={() => setResultModalOpen(false)}
+        imageSrc={croppedImageSrc}
+      />
 
       <AnimatePresence>
         {toast && (
