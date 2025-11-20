@@ -3,13 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ImageUploader } from "./components/ImageUploader";
 import { ImageCropper } from "./components/ImageCropper";
 import { ResultModal } from "./components/ResultModal";
-import { CheckCircle2 } from "lucide-react";
+import { HistoryDrawer } from "./components/HistoryDrawer";
+import { useImageHistory } from "./hooks/useImageHistory";
+import { CheckCircle2, History } from "lucide-react";
 
 function App() {
   const [imageSrc, setImageSrc] = useState(null);
   const [toast, setToast] = useState(null);
   const [resultModalOpen, setResultModalOpen] = useState(false);
   const [croppedImageSrc, setCroppedImageSrc] = useState(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const { history, addToHistory, clearHistory, removeFromHistory } = useImageHistory();
 
   const handleImageSelect = (src) => {
     setImageSrc(src);
@@ -27,6 +31,7 @@ function App() {
       ]);
 
       showToast("Cropped image copied to clipboard 🎉");
+      addToHistory(croppedImageBlobUrl);
     } catch (error) {
       console.error("Failed to copy:", error);
       // Fallback: Show modal
@@ -45,10 +50,36 @@ function App() {
     setCroppedImageSrc(null);
   };
 
+  const handleHistoryCopy = async (base64Src) => {
+    try {
+      const response = await fetch(base64Src);
+      const blob = await response.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+      showToast("Copied from history! 📋");
+      setHistoryOpen(false);
+    } catch (error) {
+      console.error("Failed to copy from history:", error);
+      showToast("Failed to copy image ❌");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-8 font-sans text-gray-900 selection:bg-black selection:text-white">
       <div className="w-full max-w-5xl mx-auto space-y-8">
-        <header className="text-center space-y-2">
+        <header className="text-center space-y-2 relative">
+          <div className="absolute right-0 top-0">
+            <button
+              onClick={() => setHistoryOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"
+              title="History"
+            >
+              <History className="w-6 h-6" />
+            </button>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight">Paste & Crop</h1>
           <p className="text-gray-500">Simple, fast, and privacy-friendly image cropping.</p>
         </header>
@@ -77,6 +108,16 @@ function App() {
         isOpen={resultModalOpen}
         onClose={() => setResultModalOpen(false)}
         imageSrc={croppedImageSrc}
+        onCopySuccess={() => addToHistory(croppedImageSrc)}
+      />
+
+      <HistoryDrawer
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        history={history}
+        onCopy={handleHistoryCopy}
+        onDelete={removeFromHistory}
+        onClear={clearHistory}
       />
 
       <AnimatePresence>

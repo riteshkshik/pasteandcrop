@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Copy } from "lucide-react";
 import { Button } from "./Button";
 
-export function ResultModal({ isOpen, onClose, imageSrc }) {
+export function ResultModal({ isOpen, onClose, imageSrc, onCopySuccess }) {
     if (!isOpen) return null;
 
     return (
@@ -48,6 +48,33 @@ export function ResultModal({ isOpen, onClose, imageSrc }) {
                         <div className="flex gap-3 w-full">
                             <Button
                                 className="flex-1"
+                                onClick={async () => {
+                                    try {
+                                        const response = await fetch(imageSrc);
+                                        const blob = await response.blob();
+                                        await navigator.clipboard.write([
+                                            new ClipboardItem({
+                                                [blob.type]: blob,
+                                            }),
+                                        ]);
+                                        if (onCopySuccess) onCopySuccess();
+                                        onClose();
+                                    } catch (err) {
+                                        console.error("Failed to copy", err);
+                                        // Fallback to download if copy fails
+                                        const link = document.createElement("a");
+                                        link.href = imageSrc;
+                                        link.download = "cropped-image.png";
+                                        link.click();
+                                    }
+                                }}
+                            >
+                                <Copy className="w-4 h-4" />
+                                Copy Image
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                className="flex-1"
                                 onClick={() => {
                                     const link = document.createElement("a");
                                     link.href = imageSrc;
@@ -56,7 +83,7 @@ export function ResultModal({ isOpen, onClose, imageSrc }) {
                                 }}
                             >
                                 <Download className="w-4 h-4" />
-                                Download Image
+                                Download
                             </Button>
                         </div>
                     </div>
